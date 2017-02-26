@@ -146,16 +146,19 @@ header("access-control-allow-origin: *");-->
       function incrementClock(){
         cur_hour += 1;
         console.log("incremented");
+        makeServerCall(map_clock);
       }
 
       function decrementClock(){
         console.log("decremented");
         cur_hour -= 1;
+        makeServerCall(map_clock);
       }
 
       function resetClock(){
         cur_hour = new Date().getHours();
         console.log("reset");
+        makeServerCall(map_clock);
       }
 
       // This example requires the Visualization library. Include the libraries=visualization
@@ -163,6 +166,7 @@ header("access-control-allow-origin: *");-->
       // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=visualization">
 
       var heatmap, directionsService, autocomplete, xhr;
+      var map_clock;
     
         
       var crime_positions = [];
@@ -474,13 +478,9 @@ header("access-control-allow-origin: *");-->
             
         });
 
-        xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function(){
-          getPoints(map);
-        };
-        xhr.open("GET", "https://api.myjson.com/bins/17q1r9", true);
-        xhr.send();
-        
+        map_clock = map;
+
+        makeServerCall(map);
         
         google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
            dist = dist / 6371;  
@@ -502,6 +502,16 @@ header("access-control-allow-origin: *");-->
         }
 
         new AutocompleteDirectionsHandler(map);
+      }
+
+      function makeServerCall(map){
+        xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function(){
+          getPoints(map);
+        };
+        var URL = "microsoft_azure.com/"+cur_hour.toString();
+        xhr.open("GET", "https://api.myjson.com/bins/17q1r9", true);
+        xhr.send();
       }
 
 
@@ -846,6 +856,9 @@ header("access-control-allow-origin: *");-->
               'rgba(220, 0, 31, 1)', 
                     'rgba(255, 0, 0, 1)'
           ]
+
+          if(heatmap!=undefined)
+            heatmap.setMap(null);
 
           heatmap = new google.maps.visualization.HeatmapLayer({
             data: result,
