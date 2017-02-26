@@ -128,7 +128,7 @@ header("access-control-allow-origin: *");-->
         
         map = new google.maps.Map(document.getElementById('map'), {
           zoom: 13,
-          center: {lat: 41.87558736, lng: -87.74508787},
+          center: {lat: 41.89558736, lng: -87.74508787},
           mapTypeId: 'satellite'
         });
 
@@ -232,7 +232,26 @@ header("access-control-allow-origin: *");-->
               //console.log(response.routes[i]);
               console.log(response.routes[i]);
 
-
+              for (var j = 0; j < response.routes[i].overview_path.length; j++){
+                //Set markers
+                /*var marker = new google.maps.Marker(
+                {
+                  position: response.routes[i].overview_path[j],
+                  title: "foo"
+                });
+                marker.setMap(me.map);
+                */
+                var score = getSafetyScore(response.routes[i].overview_path[j]);
+                if(score>=0.6){
+                  var marker = new google.maps.Marker(
+                  {
+                    position: response.routes[i].overview_path[j],
+                    title: "foo"
+                  });
+                  marker.setMap(me.map);
+                  //Do something
+                }
+              }
 
               var directionsDisplay = new google.maps.DirectionsRenderer({
                 map: me.map,
@@ -250,7 +269,7 @@ header("access-control-allow-origin: *");-->
 
       //calculates distance between two points in km's
       function calcDistance(p1, p2) {
-        return (google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000).toFixed(2);
+        return (google.maps.geometry.spherical.computeDistanceBetween(p1, p2)).toFixed(2);
       }
 
       //calculates the safety score, a crime points adds to a safety point if it is within 100m
@@ -258,15 +277,17 @@ header("access-control-allow-origin: *");-->
         var score = 0;
         var count = 0;
         for(var i=0;i<crime_positions.length;i++){
-          var p2 = new google.maps.LatLng(crime_positions[i]["lat"], crime_positions[i]["long"]);
-          var dist = calcDistance(p1, crime_positions);
-          if(dist<100){
+          var dist = calcDistance(p1, crime_positions[i]);
+          //console.log(dist);
+          if(dist<300){
             count += 1;
-            score = score + (1 - dist/100);
+            score = score + (1 - dist/300);
           }
         }
-        score = score/count;
-        console.log(score);
+
+        if(count!=0)
+          score = score/count;
+        //console.log(score);
         return score;
       }
 
@@ -324,11 +345,12 @@ header("access-control-allow-origin: *");-->
 
         result = [];
         text_file = JSON.parse(text_file);
-        crime_positions = text_file;
         
         for(var i=0;i<text_file.length;i++){
           result.push(new google.maps.LatLng(text_file[i]["lat"], text_file[i]["long"]));
         }
+
+        crime_positions = result
 
         return result;
       }
