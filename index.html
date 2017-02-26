@@ -681,70 +681,87 @@ header("access-control-allow-origin: *");-->
             var safeResponse = response;
             var safeIndex = safest_index;
 
-            for (var j = 0; j < safeResponse.routes[safest_index].overview_path.length; j++){
-              //Set markers
-              /*var marker = new google.maps.Marker(
-              {
-                position: safeResponse.routes[safest_index].overview_path[j],
-                title: "foo"
-              });
-              marker.setMap(me.map);
-              */
-              var score = getSafetyScore(safeResponse.routes[safest_index].overview_path[j]);
-
-              if(score>=0.6){
-                
+            var legs = safeResponse.routes[safeIndex].legs;
+            for (var i=0;i<legs.length;i++) {
                 /*
-                var marker = new google.maps.Marker({
-                  position: response.routes[safeIndex].overview_path[j],
-                  title: "foo"
-                });
-                marker.setMap(me.map);*/
-
-                var point = response.routes[safeIndex].overview_path[j];
-                
-                var pointNorth, pointSount, pointEast, pointWest;
-                pointNorth = point.destinationPoint(90, .300)
-                pointSouth = point.destinationPoint(270, .300)
-                pointEast = point.destinationPoint(0, .300)
-                pointWest = point.destinationPoint(180, .300)
-
-                var scoreNorth, scoreSouth, scoreEast, scoreWest;
-                scoreNorth = getSafetyScore(pointNorth);
-                scoreSouth = getSafetyScore(pointSouth);
-                scoreEast = getSafetyScore(pointEast);
-                scoreWest = getSafetyScore(pointWest);
-
-
-                if(scoreNorth<scoreSouth && scoreNorth<scoreEast && scoreNorth<scoreWest){
-                  // Create waypoints
-                  waypts.push({
-                    location: pointNorth,
-                    stopover: true
-                  });
+                if (i == 0) { 
+                  startLocation.latlng = legs[i].start_location;
+                  startLocation.address = legs[i].start_address;
+                  // marker = google.maps.Marker({map:map,position: startLocation.latlng});
+                  marker = createMarker(legs[i].start_location,"start",legs[i].start_address,"green");
                 }
-                else if(scoreSouth<scoreNorth && scoreSouth<scoreWest && scoreSouth<scoreEast){
-                  // Create waypoints
-                  waypts.push({
-                    location: pointSouth,
-                    stopover: true
-                  });
-                }
+                endLocation.latlng = legs[i].end_location;
+                endLocation.address = legs[i].end_address;*/
+                var steps = legs[i].steps;
+                for (var j=0;j<steps.length;j++) {
+                  var nextSegment = steps[j].path;
+                  for (var k=0;k<nextSegment.length;k++) {
+                    //console.log(nextSegment[k]);
+                    var score = getSafetyScore(nextSegment[k]);
+                    console.log(score);
 
-                else if(scoreEast<scoreNorth && scoreEast<scoreWest && scoreEast<scoreSouth){
-                  // Create waypoints
-                  waypts.push({
-                    location: pointEast,
-                    stopover: true
-                  });
-                }
-                else{
-                  waypts.push({
-                    location: pointWest,
-                    stopover: true
-                  });
-                }
+                    /*var marker = new google.maps.Marker(
+                      {
+                        position: nextSegment[k],
+                        title: "foo"
+                      });
+                      marker.setMap(this.map);*/
 
+                    if(score>=0.5){
+
+                      var point = nextSegment[k];
+                      var marker = new google.maps.Marker(
+                      {
+                        position: point,
+                        title: "foo"
+                      });
+                      marker.setMap(this.map);
+                      
+                      var pointNorth, pointSount, pointEast, pointWest;
+                      pointNorth = point.destinationPoint(90, .400)
+                      pointSouth = point.destinationPoint(270, .400)
+                      pointEast = point.destinationPoint(0, .400)
+                      pointWest = point.destinationPoint(180, .400)
+
+                      var scoreNorth, scoreSouth, scoreEast, scoreWest;
+                      scoreNorth = getSafetyScore(pointNorth);
+                      scoreSouth = getSafetyScore(pointSouth);
+                      scoreEast = getSafetyScore(pointEast);
+                      scoreWest = getSafetyScore(pointWest);
+
+
+                      if(scoreNorth<scoreSouth && scoreNorth<scoreEast && scoreNorth<scoreWest){
+                        // Create waypoints
+                        waypts.push({
+                          location: pointNorth,
+                          stopover: true
+                        });
+                      }
+                      else if(scoreSouth<scoreNorth && scoreSouth<scoreWest && scoreSouth<scoreEast){
+                        // Create waypoints
+                        waypts.push({
+                          location: pointSouth,
+                          stopover: true
+                        });
+                      }
+
+                      else if(scoreEast<scoreNorth && scoreEast<scoreWest && scoreEast<scoreSouth){
+                        // Create waypoints
+                        waypts.push({
+                          location: pointEast,
+                          stopover: true
+                        });
+                      }
+                      else{
+                        waypts.push({
+                          location: pointWest,
+                          stopover: true
+                        });
+                      }
+                    
+                }
+              }
+            }
 
                 /*
                 //Set markers
@@ -758,7 +775,6 @@ header("access-control-allow-origin: *");-->
 
                 console.log(waypts);*/
               }
-            } 
           } else {
             window.alert('Directions request failed due to ' + status);
           }
