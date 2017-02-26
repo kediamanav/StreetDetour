@@ -10,5 +10,5 @@
 <h2>Build/Installation Instructions</h2>
 <code>git clone https://github.com/kediamanav/StreetDetour.git</code>
 <h2>Contributor guide</h2>
-<a href = "#">CONTRIBUTING.md</a>
+<a href = "https://github.com/kediamanav/StreetDetour/blob/master/CONTRIBUTING.md">CONTRIBUTING.md</a>
 <h2>License</h2>
