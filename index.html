@@ -794,6 +794,7 @@ header("access-control-allow-origin: *");-->
         var score = 0;
         var count = 0;
         for(var i=0;i<crime_positions.length;i++){
+          console.log(crime_positions[i], p1);
           var dist = calcDistance(p1, crime_positions[i]);
           //console.log(dist);
           if(dist<300){
