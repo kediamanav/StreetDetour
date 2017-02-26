@@ -120,6 +120,7 @@ header("access-control-allow-origin: *");-->
       // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=visualization">
 
       var map, heatmap, directionsService, autocomplete;
+      var crime_positions = [];
 
       function initMap() {
 
@@ -127,7 +128,7 @@ header("access-control-allow-origin: *");-->
         
         map = new google.maps.Map(document.getElementById('map'), {
           zoom: 13,
-          center: {lat: 41.87558736, lng: -87.74508787},
+          center: {lat: 41.89558736, lng: -87.74508787},
           mapTypeId: 'satellite'
         });
 
@@ -244,7 +245,28 @@ header("access-control-allow-origin: *");-->
 
             for (var i=0;i<response.routes.length;i++){
               //console.log(response.routes[i]);
-              console.log(i);
+              console.log(response.routes[i]);
+
+              for (var j = 0; j < response.routes[i].overview_path.length; j++){
+                //Set markers
+                /*var marker = new google.maps.Marker(
+                {
+                  position: response.routes[i].overview_path[j],
+                  title: "foo"
+                });
+                marker.setMap(me.map);
+                */
+                var score = getSafetyScore(response.routes[i].overview_path[j]);
+                if(score>=0.6){
+                  var marker = new google.maps.Marker(
+                  {
+                    position: response.routes[i].overview_path[j],
+                    title: "foo"
+                  });
+                  marker.setMap(me.map);
+                  //Do something
+                }
+              }
 
               var directionsDisplay = new google.maps.DirectionsRenderer({
                 map: me.map,
@@ -260,31 +282,29 @@ header("access-control-allow-origin: *");-->
         });
       };
 
-      /*
-      function calculateAndDisplayRoute(directionsService) {
-        directionsService.route({
-          origin: document.getElementById('start').value,
-          destination: document.getElementById('end').value,
-          travelMode: 'DRIVING',
-          provideRouteAlternatives: true,
-        }, function(response, status) {
-          if (status === 'OK') {
+      //calculates distance between two points in km's
+      function calcDistance(p1, p2) {
+        return (google.maps.geometry.spherical.computeDistanceBetween(p1, p2)).toFixed(2);
+      }
 
-            console.log(response.routes);
-            for (var i=0;i<response.routes.length;i++){
-              console.log(response.routes[i]);
-              new google.maps.DirectionsRenderer({
-                map: map,
-                directions: response,
-                routeIndex: i
-              });
-              //directionsDisplay.setDirections(response.routes[i]); 
-            }
-          } else {
-            window.alert('Directions request failed due to ' + status);
+      //calculates the safety score, a crime points adds to a safety point if it is within 100m
+      function getSafetyScore(p1){
+        var score = 0;
+        var count = 0;
+        for(var i=0;i<crime_positions.length;i++){
+          var dist = calcDistance(p1, crime_positions[i]);
+          //console.log(dist);
+          if(dist<300){
+            count += 1;
+            score = score + (1 - dist/300);
           }
-        });
-      }*/
+        }
+
+        if(count!=0)
+          score = score/count;
+        //console.log(score);
+        return score;
+      }
 
       function toggleHeatmap() {
         heatmap.setMap(heatmap.getMap() ? null : map);
@@ -317,6 +337,9 @@ header("access-control-allow-origin: *");-->
       function changeOpacity() {
         heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
       }
+
+      //Get hour of the day for getting the relevant heatmap
+      var cur_hour = new Date().getHours();
 
       /*
       var xhr = new XMLHttpRequest();
@@ -356,11 +379,13 @@ header("access-control-allow-origin: *");-->
           result.push({location:new google.maps.LatLng(text_file[i]["lat"], text_file[i]["long"]), weight: weight});
         }
 
+        crime_positions = result
+
         return result;
       }
     </script>
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_RY65dH5Dw8Wr4SF8YhRulW4TkSaaEXA&libraries=visualization,places&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_RY65dH5Dw8Wr4SF8YhRulW4TkSaaEXA&libraries=visualization,places,geometry&callback=initMap">
     </script>
   </body>
 </html>
