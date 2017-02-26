@@ -732,31 +732,39 @@ header("access-control-allow-origin: *");-->
 
                       if(scoreNorth<scoreSouth && scoreNorth<scoreEast && scoreNorth<scoreWest){
                         // Create waypoints
-                        waypts.push({
-                          location: pointNorth,
-                          stopover: true
-                        });
+                        if(waypts.length<25){
+                          waypts.push({
+                            location: pointNorth,
+                            stopover: true
+                          });
+                        }
                       }
                       else if(scoreSouth<scoreNorth && scoreSouth<scoreWest && scoreSouth<scoreEast){
                         // Create waypoints
-                        waypts.push({
-                          location: pointSouth,
-                          stopover: true
-                        });
+                        if(waypts.length<25){
+                          waypts.push({
+                            location: pointSouth,
+                            stopover: true
+                          });
+                        }
                       }
 
                       else if(scoreEast<scoreNorth && scoreEast<scoreWest && scoreEast<scoreSouth){
                         // Create waypoints
-                        waypts.push({
-                          location: pointEast,
-                          stopover: true
-                        });
+                        if(waypts.length<25){
+                            waypts.push({
+                            location: pointEast,
+                            stopover: true
+                          });
+                        }
                       }
                       else{
-                        waypts.push({
-                          location: pointWest,
-                          stopover: true
-                        });
+                        if(waypts.length<25){
+                          waypts.push({
+                            location: pointWest,
+                            stopover: true
+                          });
+                        }
                       }
                     
                 }
@@ -853,20 +861,19 @@ header("access-control-allow-origin: *");-->
 
       function changeGradient() {
         var gradient = [
-          'rgba(0, 255, 255, 0)',
-          'rgba(0, 255, 255, 1)',
-          'rgba(0, 191, 255, 1)',
-          'rgba(0, 127, 255, 1)',
-          'rgba(0, 63, 255, 1)',
-          'rgba(0, 0, 255, 1)',
-          'rgba(0, 0, 223, 1)',
-          'rgba(0, 0, 191, 1)',
-          'rgba(0, 0, 159, 1)',
-          'rgba(0, 0, 127, 1)',
-          'rgba(63, 0, 91, 1)',
-          'rgba(127, 0, 63, 1)',
-          'rgba(191, 0, 31, 1)',
-          'rgba(255, 0, 0, 1)'
+          'rgba(255, 255, 0, 0)',
+          'rgba(255, 255, 0, 1)',
+          'rgba(255, 191, 0, 1)',
+          'rgba(255, 127, 0, 1)',
+          'rgba(255, 255, 0, 1)',
+          'rgba(255, 255, 0, 1)',
+          'rgba(255, 191, 0, 1)',
+          'rgba(255, 127, 0, 1)',
+          'rgba(255, 255, 0, 0)',
+          'rgba(255, 255, 0, 1)',
+          'rgba(255, 191, 0, 1)',
+          'rgba(255, 127, 0, 1)',
+          'rgba(255, 63, 0, 1)',
         ]
         heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
       }
