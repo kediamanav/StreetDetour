@@ -523,6 +523,8 @@ header("access-control-allow-origin: *");-->
       };
 
       AutocompleteDirectionsHandler.prototype.route = function() {
+        var METERS_TO_MILES = 0.000621371192;
+
         if (!this.originPlaceId || !this.destinationPlaceId) {
           return;
         }
@@ -595,14 +597,17 @@ header("access-control-allow-origin: *");-->
               }
             }
 
-            document.getElementById('distance_fastest').innerHTML = "Distance: " + (distances[fastest_index] + " miles");
-            document.getElementById('duration_fastest').innerHTML = "Duration: " + (durations[fastest_index] + " hours");   
+            document.getElementById('distance_fastest').innerHTML = "Distance: " + (Math.round(distances[fastest_index] * METERS_TO_MILES *10)/10) + " miles";
+            document.getElementById('duration_fastest').innerHTML = "Duration: " + Math.round((durations[fastest_index]/(60*60))*100)/100 + " hours";   
 
             //Plot the fastest here
             var directionsDisplay = new google.maps.DirectionsRenderer({
               map: me.map,
               directions: response,
-              routeIndex: i
+              routeIndex: i,
+              polylineOptions: {
+                strokeColor: "red"
+              }
             });
             me.directionsDisplays.push(directionsDisplay);
             
@@ -651,6 +656,8 @@ header("access-control-allow-origin: *");-->
                   stopover: true
                 });
 
+                console.log(waypts);
+
                 // Snap to road maybe?
               }
           } 
@@ -665,6 +672,8 @@ header("access-control-allow-origin: *");-->
         
         var cur_distance = 0
         var cur_duration = 0
+
+        console.log(waypts);
 
         //Do processing of detour        
         this.directionsService.route({
@@ -682,17 +691,20 @@ header("access-control-allow-origin: *");-->
               cur_distance += response.routes[0].legs[j].distance.value;
             }
 
+            document.getElementById('distance_safest').innerHTML = "Distance: " + (Math.round(cur_distance * METERS_TO_MILES * 10) /10) + " miles";
+            document.getElementById('duration_safest').innerHTML = "Duration: " + Math.round((cur_duration/(60*60))*100)/100 + " hours";  
+
             var directionsDisplay = new google.maps.DirectionsRenderer({
               map: me.map,
               directions: response,
-              routeIndex: 0
+              routeIndex: 0,
+              polylineOptions: {
+                strokeColor: "yellow"
+              }
             });
             me.directionsDisplays.push(directionsDisplay);
           }
         });
-
-        document.getElementById('distance_safest').innerHTML = "Distance: " + cur_distance + " miles";
-        document.getElementById('duration_safest').innerHTML = "Duration: " + cur_duration + " hours";  
     }
 
       //calculates distance between two points in km's
