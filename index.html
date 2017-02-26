@@ -715,6 +715,8 @@ header("access-control-allow-origin: *");-->
                 scoreEast = getSafetyScore(pointEast);
                 scoreWest = getSafetyScore(pointWest);
 
+
+
                 //Set markers
                 var marker = new google.maps.Marker(
                 {
@@ -809,7 +811,7 @@ header("access-control-allow-origin: *");-->
       /*
       function toggleHeatmap() {
         heatmap.setMap(heatmap.getMap() ? null : map);
-      }
+      }*/
 
       function changeGradient() {
         var gradient = [
@@ -830,7 +832,7 @@ header("access-control-allow-origin: *");-->
         ]
         heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
       }
-
+      /*
       function changeRadius() {
         heatmap.set('radius', heatmap.get('radius') ? null : 20);
       }
@@ -861,7 +863,7 @@ header("access-control-allow-origin: *");-->
           text_file = JSON.parse(text_file);
           
           for(var i=0;i<text_file.length;i++){
-            result.push(new google.maps.LatLng(text_file[i]["lat"], text_file[i]["long"]));
+            result.push({location: new google.maps.LatLng(text_file[i]["lat"], text_file[i]["long"]), weight: 1});
           }
           
           var g = [
@@ -885,6 +887,7 @@ header("access-control-allow-origin: *");-->
             //gradient: g,
           });
           
+          changeGradient();
           crime_positions = result
         }          
       }
