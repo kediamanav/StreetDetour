@@ -716,7 +716,37 @@ header("access-control-allow-origin: *");-->
                 scoreWest = getSafetyScore(pointWest);
 
 
+                if(scoreNorth<scoreSouth && scoreNorth<scoreEast && scoreNorth<scoreWest){
+                  // Create waypoints
+                  waypts.push({
+                    location: pointNorth,
+                    stopover: true
+                  });
+                }
+                else if(scoreSouth<scoreNorth && scoreSouth<scoreWest && scoreSouth<scoreEast){
+                  // Create waypoints
+                  waypts.push({
+                    location: pointSouth,
+                    stopover: true
+                  });
+                }
 
+                else if(scoreEast<scoreNorth && scoreEast<scoreWest && scoreEast<scoreSouth){
+                  // Create waypoints
+                  waypts.push({
+                    location: pointEast,
+                    stopover: true
+                  });
+                }
+                else{
+                  waypts.push({
+                    location: pointWest,
+                    stopover: true
+                  });
+                }
+
+
+                /*
                 //Set markers
                 var marker = new google.maps.Marker(
                 {
@@ -726,15 +756,7 @@ header("access-control-allow-origin: *");-->
                 marker.setMap(me.map);
                 
 
-                // Find the closest one and then the safest one
-
-                // Create waypoints
-                waypts.push({
-                  location: pointNorth,
-                  stopover: true
-                });
-
-                console.log(waypts);
+                console.log(waypts);*/
               }
             } 
           } else {
