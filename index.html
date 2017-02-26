@@ -73,6 +73,10 @@ header("access-control-allow-origin: *");-->
         font-weight: 300;
       }
 
+      .clock {
+        font-size: 4em;
+      }
+
 
     </style>
   </head>
@@ -101,22 +105,64 @@ header("access-control-allow-origin: *");-->
       <div id="distance_fastest">Fastest Path Distance: </div>
       <div id="duration_safest">Safest Path Duration: </div> 
       <div id="distance_safest">Safest Path Distance: </div>
+      <div class="clock" style="margin-top:15px"></div>
+      <button onclick="incrementClock()" style="margin-top:15px">+</button>
+      <button onclick="decrementClock()" style="margin-top:15px">-</button>
+      <button onclick="resetClock()" style="margin-top:15px">R</button>
+
+
       <!--<button onclick="toggleHeatmap()">Toggle Heatmap</button>
       <button onclick="changeGradient()">Change gradient</button>
       <button onclick="changeRadius()">Change radius</button>
       <button onclick="changeOpacity()">Change opacity</button>-->
     </div>
+
       <div id="map">
       </div>
+
+    <script src="assets/jquery.js"></script>
     <script>
+
+
+      var cur_hour = new Date().getHours();
+
+      function clock() {// We create a new Date object and assign it to a variable called "time".
+        var time = new Date();
+        var hour = time.getHours();
+        var minutes = time.getMinutes();
+    
+        document.querySelectorAll('.clock')[0].innerHTML = harold(cur_hour) + ":" + harold(minutes);
+        
+        function harold(standIn) {
+          if (standIn < 10) {
+            standIn = '0' + standIn;
+          }
+          return standIn;
+        }
+      }
+      setInterval(clock, 2000);
+
+
+      function incrementClock(){
+        cur_hour += 1;
+        console.log("incremented");
+      }
+
+      function decrementClock(){
+        console.log("decremented");
+        cur_hour -= 1;
+      }
+
+      function resetClock(){
+        cur_hour = new Date().getHours();
+        console.log("reset");
+      }
 
       // This example requires the Visualization library. Include the libraries=visualization
       // parameter when you first load the API. For example:
       // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=visualization">
 
       var heatmap, directionsService, autocomplete, xhr;
-    
-
     
         
       var crime_positions = [];
@@ -773,10 +819,6 @@ header("access-control-allow-origin: *");-->
          return this * 180 / Math.PI;
       }
 
-
-      //Get hour of the day for getting the relevant heatmap
-      var cur_hour = new Date().getHours();
-      
 
       // Heatmap data: 500 Points
       function getPoints(map) {
