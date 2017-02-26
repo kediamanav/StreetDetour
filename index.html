@@ -572,37 +572,46 @@ header("access-control-allow-origin: *");-->
                   });
                   marker.setMap(me.map);
 
-                  // var point = response.routes[i].overview_path[j];
-                  // var pointNorth, pointSount, pointEast, pointWest;
-                  // pointNorth = point.destinationPoint(180, .300)
-                  // pointSouth = point.destinationPoint(0, .300)
-                  // pointEast = point.destinationPoint(90, .300)
-                  // pointWest = point.destinationPoint(270, .300)
+                  var point = response.routes[i].overview_path[j];
+                  var pointNorth, pointSount, pointEast, pointWest;
+                  pointNorth = point.destinationPoint(180, .300)
+                  pointSouth = point.destinationPoint(0, .300)
+                  pointEast = point.destinationPoint(90, .300)
+                  pointWest = point.destinationPoint(270, .300)
 
-                  // var marker = new google.maps.Marker(
-                  // {
-                  //   position: pointNorth,
-                  //   title: "foo"
-                  // });
-                  // marker.setMap(me.map);
-                  // var marker = new google.maps.Marker(
-                  // {
-                  //   position: pointSouth,
-                  //   title: "foo"
-                  // });
-                  // marker.setMap(me.map);
-                  // var marker = new google.maps.Marker(
-                  // {
-                  //   position: pointEast,
-                  //   title: "foo"
-                  // });
-                  // marker.setMap(me.map);
-                  // var marker = new google.maps.Marker(
-                  // {
-                  //   position: pointWest,
-                  //   title: "foo"
-                  // });
-                  // marker.setMap(me.map);
+                  // Find the closest one and then the safest one
+                  // Snap to road maybe?
+                  // Create waypoints
+                  // Build a path
+                  // Label as safest
+
+
+                  /*
+                  var marker = new google.maps.Marker(
+                  {
+                    position: pointNorth,
+                    title: "foo"
+                  });
+                  marker.setMap(me.map);
+                  var marker = new google.maps.Marker(
+                  {
+                    position: pointSouth,
+                    title: "foo"
+                  });
+                  marker.setMap(me.map);
+                  var marker = new google.maps.Marker(
+                  {
+                    position: pointEast,
+                    title: "foo"
+                  });
+                  marker.setMap(me.map);
+                  var marker = new google.maps.Marker(
+                  {
+                    position: pointWest,
+                    title: "foo"
+                  });
+                  marker.setMap(me.map);
+                  */
                   /*var string_score = (score*100).toString();
 
                   var infowindow = new google.maps.InfoWindow({
@@ -708,7 +717,6 @@ header("access-control-allow-origin: *");-->
         if (xhr.readyState == 4) {
           var resp = xhr.responseText;
           text_file = resp;
-          console.log(resp);
         
           text_file = JSON.parse(text_file);
           
@@ -736,8 +744,8 @@ header("access-control-allow-origin: *");-->
           
           crime_positions = result
         }          
-          
       }
+
     </script>
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_RY65dH5Dw8Wr4SF8YhRulW4TkSaaEXA&libraries=visualization,places,geometry&callback=initMap">
