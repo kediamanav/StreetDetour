@@ -698,7 +698,7 @@ header("access-control-allow-origin: *");-->
                   for (var k=0;k<nextSegment.length;k++) {
                     //console.log(nextSegment[k]);
                     var score = getSafetyScore(nextSegment[k]);
-                    console.log(score);
+                    //console.log(score);
 
                     /*var marker = new google.maps.Marker(
                       {
@@ -710,12 +710,12 @@ header("access-control-allow-origin: *");-->
                     if(score>=0.5){
 
                       var point = nextSegment[k];
-                      var marker = new google.maps.Marker(
-                      {
-                        position: point,
-                        title: "foo"
-                      });
-                      marker.setMap(this.map);
+                      // var marker = new google.maps.Marker(
+                      // {
+                      //   position: point,
+                      //   title: "foo"
+                      // });
+                      // marker.setMap(this.map);
                       
                       var pointNorth, pointSount, pointEast, pointWest;
                       pointNorth = point.destinationPoint(90, .400)
@@ -732,7 +732,7 @@ header("access-control-allow-origin: *");-->
 
                       if(scoreNorth<scoreSouth && scoreNorth<scoreEast && scoreNorth<scoreWest){
                         // Create waypoints
-                        if(waypts.length<25){
+                        if(waypts.length<20){
                           waypts.push({
                             location: pointNorth,
                             stopover: true
@@ -741,7 +741,7 @@ header("access-control-allow-origin: *");-->
                       }
                       else if(scoreSouth<scoreNorth && scoreSouth<scoreWest && scoreSouth<scoreEast){
                         // Create waypoints
-                        if(waypts.length<25){
+                        if(waypts.length<20){
                           waypts.push({
                             location: pointSouth,
                             stopover: true
@@ -751,7 +751,7 @@ header("access-control-allow-origin: *");-->
 
                       else if(scoreEast<scoreNorth && scoreEast<scoreWest && scoreEast<scoreSouth){
                         // Create waypoints
-                        if(waypts.length<25){
+                        if(waypts.length<20){
                             waypts.push({
                             location: pointEast,
                             stopover: true
@@ -759,7 +759,7 @@ header("access-control-allow-origin: *");-->
                         }
                       }
                       else{
-                        if(waypts.length<25){
+                        if(waypts.length<20){
                           waypts.push({
                             location: pointWest,
                             stopover: true
