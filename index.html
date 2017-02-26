@@ -509,8 +509,9 @@ header("access-control-allow-origin: *");-->
         xhr.onreadystatechange = function(){
           getPoints(map);
         };
-        var URL = "microsoft_azure.com/"+cur_hour.toString();
-        xhr.open("GET", "https://api.myjson.com/bins/17q1r9", true);
+        //xhr.open("GET", "https://api.myjson.com/bins/17q1r9", true);
+        var URL = "http://streetsafety1.azurewebsites.net/data/interval_"+cur_hour.toString()+".json";
+        xhr.open("GET", URL, true);
         xhr.send();
       }
 
