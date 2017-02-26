@@ -21,7 +21,7 @@ header("access-control-allow-origin: *");-->
       #floating-panel {
         position: absolute;
         top: 10px;
-        left: 25%;
+        left: 500px;
         z-index: 5;
         background-color: #fff;
         padding: 5px;
@@ -82,19 +82,11 @@ header("access-control-allow-origin: *");-->
         font-weight: 300;
       }
 
+
     </style>
   </head>
 
   <body>
-
-    <!--
-    <div id="floating-panel">
-      <button onclick="toggleHeatmap()">Toggle Heatmap</button>
-      <button onclick="changeGradient()">Change gradient</button>
-      <button onclick="changeRadius()">Change radius</button>
-      <button onclick="changeOpacity()">Change opacity</button>
-    </div>
-    -->
 
     <input id="origin-input" class="controls" type="text"
       placeholder="Enter an origin location">
@@ -112,7 +104,19 @@ header("access-control-allow-origin: *");-->
       <input type="radio" name="type" id="changemode-driving">
       <label for="changemode-driving">Driving</label>
     </div>
-    <div id="map"></div>
+
+    <div id="floating-panel">
+
+      <div id="duration">Duration: </div> 
+      <div id="distance">Distance: </div>
+      <!--<button onclick="toggleHeatmap()">Toggle Heatmap</button>
+      <button onclick="changeGradient()">Change gradient</button>
+      <button onclick="changeRadius()">Change radius</button>
+      <button onclick="changeOpacity()">Change opacity</button>-->
+    </div>
+
+      <div id="map">
+      </div>
     <script>
 
       // This example requires the Visualization library. Include the libraries=visualization
@@ -541,6 +545,7 @@ header("access-control-allow-origin: *");-->
           me.directionsDisplays = [];
         }
 
+        var safeResponse, safeIndex;
 
         this.directionsService.route({
           origin: {'placeId': this.originPlaceId},
@@ -550,92 +555,161 @@ header("access-control-allow-origin: *");-->
         }, function(response, status) {
           if (status === 'OK') {
 
-            for (var i=0;i<response.routes.length;i++){
-              //console.log(response.routes[i]);
-              //console.log(response.routes[i]);
+            distances = []
+            durations = []
+            safety = []
 
+            for (var i=0;i<response.routes.length;i++){
+
+              cur_distance = 0
+              cur_duration = 0
+              for(var j=0; j<response.routes[i].legs.length; j++){
+                cur_duration += response.routes[i].legs[j].duration.text;
+                cur_distance += response.routes[i].legs[j].distance.text;
+              }
+              distances.push(cur_distance);
+              durations.push(cur_duration);
+
+              cur_score = 0;
               for (var j = 0; j < response.routes[i].overview_path.length; j++){
-                //Set markers
-                /*var marker = new google.maps.Marker(
-                {
-                  position: response.routes[i].overview_path[j],
-                  title: "foo"
-                });
-                marker.setMap(me.map);
-                */
-                var score = getSafetyScore(response.routes[i].overview_path[j]);
-                if(score>=0.6){
-                  var marker = new google.maps.Marker(
+                  //Set markers
+                  /*var marker = new google.maps.Marker(
                   {
                     position: response.routes[i].overview_path[j],
                     title: "foo"
                   });
                   marker.setMap(me.map);
-
-                  var point = response.routes[i].overview_path[j];
-                  var pointNorth, pointSount, pointEast, pointWest;
-                  pointNorth = point.destinationPoint(180, .300)
-                  pointSouth = point.destinationPoint(0, .300)
-                  pointEast = point.destinationPoint(90, .300)
-                  pointWest = point.destinationPoint(270, .300)
-
-                  // Find the closest one and then the safest one
-                  // Snap to road maybe?
-                  // Create waypoints
-                  // Build a path
-                  // Label as safest
-
-
-                  /*
-                  var marker = new google.maps.Marker(
-                  {
-                    position: pointNorth,
-                    title: "foo"
-                  });
-                  marker.setMap(me.map);
-                  var marker = new google.maps.Marker(
-                  {
-                    position: pointSouth,
-                    title: "foo"
-                  });
-                  marker.setMap(me.map);
-                  var marker = new google.maps.Marker(
-                  {
-                    position: pointEast,
-                    title: "foo"
-                  });
-                  marker.setMap(me.map);
-                  var marker = new google.maps.Marker(
-                  {
-                    position: pointWest,
-                    title: "foo"
-                  });
-                  marker.setMap(me.map);
                   */
-                  /*var string_score = (score*100).toString();
-
-                  var infowindow = new google.maps.InfoWindow({
-                    content: string_score
-                  });
-
-                  marker.addListener('click', function() {
-                    infowindow.open(me.map, marker);
-                  });*/
-                }
+                  cur_score += getSafetyScore(response.routes[i].overview_path[j]);
               }
+              safety.push(cur_score);
+            }
 
+            //Find the index corresponding to the fastest arrival and the safest
+            var fastest_index = 0;
+            var value = durations[0];
+            for (var i = 1; i < durations.length; i++) {
+              if (durations[i] < value) {
+                value = durations[i];
+                fastest_index = i;
+              }
+            }
+
+            var safest_index = 0;
+            value = safety[0];
+            for (var i = 1; i < safety.length; i++) {
+              if (safety[i] < value) {
+                value = safety[i];
+                safest_index = i;
+              }
+            }
+
+            document.getElementById('distance').innerHTML = "Distance: " + (distances[fastest_index]);
+            document.getElementById('duration').innerHTML = "Duration: " + (durations[fastest_index]);   
+
+            //Plot the fastest here
               var directionsDisplay = new google.maps.DirectionsRenderer({
                 map: me.map,
                 directions: response,
                 routeIndex: i
               });
               me.directionsDisplays.push(directionsDisplay);
-            }
+            
+
+            //Tinker with the safest here
+            safeResponse = response;
+            safeIndex = safest_index;
+
             //me.directionsDisplay.setDirections(response);
           } else {
             window.alert('Directions request failed due to ' + status);
           }
         });
+
+
+        //Do processing of detour
+        for (var j = 0; j < safeResponse.routes[safest_index].overview_path.length; j++){
+            //Set markers
+            /*var marker = new google.maps.Marker(
+            {
+              position: safeResponse.routes[safest_index].overview_path[j],
+              title: "foo"
+            });
+            marker.setMap(me.map);
+            */
+            var score += getSafetyScore(safeResponse.routes[safest_index].overview_path[j]);
+
+            waypts = [];
+            if(score>=0.6){
+              var marker = new google.maps.Marker(
+              {
+                position: response.routes[i].overview_path[j],
+                title: "foo"
+              });
+              marker.setMap(me.map);
+
+              var point = response.routes[i].overview_path[j];
+              
+              var pointNorth, pointSount, pointEast, pointWest;
+              pointNorth = point.destinationPoint(180, .300)
+              pointSouth = point.destinationPoint(0, .300)
+              pointEast = point.destinationPoint(90, .300)
+              pointWest = point.destinationPoint(270, .300)
+
+              var scoreNorth, scoreSouth, scoreEast, scoreWest;
+              scoreNorth = getSafetyScore(pointNorth);
+              scoreSouth = getSafetyScore(pointSouth);
+              scoreEast = getSafetyScore(pointEast);
+              scoreWest = getSafetyScore(pointWest);
+
+              waypts.push({
+                location: pointNorth,
+                stopover: true
+              });
+              // Find the closest one and then the safest one
+              // Snap to road maybe?
+              // Create waypoints
+              // Build a path
+              // Label as safest
+              // Handle multiple routes
+
+              /*
+              var marker = new google.maps.Marker(
+              {
+                position: pointNorth,
+                title: "foo"
+              });
+              marker.setMap(me.map);
+              var marker = new google.maps.Marker(
+              {
+                position: pointSouth,
+                title: "foo"
+              });
+              marker.setMap(me.map);
+              var marker = new google.maps.Marker(
+              {
+                position: pointEast,
+                title: "foo"
+              });
+              marker.setMap(me.map);
+              var marker = new google.maps.Marker(
+              {
+                position: pointWest,
+                title: "foo"
+              });
+              marker.setMap(me.map);
+              */
+              /*var string_score = (score*100).toString();
+
+              var infowindow = new google.maps.InfoWindow({
+                content: string_score
+              });
+
+              marker.addListener('click', function() {
+                infowindow.open(me.map, marker);
+              });*/
+        }
+
       };
 
       //calculates distance between two points in km's
