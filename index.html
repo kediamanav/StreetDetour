@@ -509,9 +509,9 @@ header("access-control-allow-origin: *");-->
         xhr.onreadystatechange = function(){
           getPoints(map);
         };
-        //xhr.open("GET", "https://api.myjson.com/bins/17q1r9", true);
         var URL = "http://streetsafety1.azurewebsites.net/data/interval_"+cur_hour.toString()+".json";
-        xhr.open("GET", URL, true);
+        xhr.open("GET", "https://api.myjson.com/bins/17q1r9", true);
+        //xhr.open("GET", URL, true);
         xhr.send();
       }
 
@@ -595,6 +595,7 @@ header("access-control-allow-origin: *");-->
           me.directionsDisplays = [];
         }
 
+        //console.log("IN HERE");
         var waypts = [];
 
         this.directionsService.route({
@@ -654,8 +655,8 @@ header("access-control-allow-origin: *");-->
               }
             }
 
-            document.getElementById('distance_fastest').innerHTML = "Distance: " + (Math.round(distances[fastest_index] * METERS_TO_MILES *10)/10) + " miles";
-            document.getElementById('duration_fastest').innerHTML = "Duration: " + Math.round((durations[fastest_index]/(60*60))*100)/100 + " hours";   
+            document.getElementById('distance_fastest').innerHTML = "Fastest Path Distance: " + (Math.round(distances[fastest_index] * METERS_TO_MILES *10)/10) + " miles";
+            document.getElementById('duration_fastest').innerHTML = "Fastest Path Duration: " + Math.round((durations[fastest_index]/(60*60))*100)/100 + " hours";   
 
             //Plot the fastest here
             var directionsDisplay = new google.maps.DirectionsRenderer({
@@ -685,25 +686,36 @@ header("access-control-allow-origin: *");-->
               var score = getSafetyScore(safeResponse.routes[safest_index].overview_path[j]);
 
               if(score>=0.6){
+                
+                /*
                 var marker = new google.maps.Marker({
                   position: response.routes[safeIndex].overview_path[j],
                   title: "foo"
                 });
-                marker.setMap(me.map);
+                marker.setMap(me.map);*/
 
                 var point = response.routes[safeIndex].overview_path[j];
                 
                 var pointNorth, pointSount, pointEast, pointWest;
-                pointNorth = point.destinationPoint(180, .300)
-                pointSouth = point.destinationPoint(0, .300)
-                pointEast = point.destinationPoint(90, .300)
-                pointWest = point.destinationPoint(270, .300)
+                pointNorth = point.destinationPoint(90, .300)
+                pointSouth = point.destinationPoint(270, .300)
+                pointEast = point.destinationPoint(0, .300)
+                pointWest = point.destinationPoint(180, .300)
 
                 var scoreNorth, scoreSouth, scoreEast, scoreWest;
                 scoreNorth = getSafetyScore(pointNorth);
                 scoreSouth = getSafetyScore(pointSouth);
                 scoreEast = getSafetyScore(pointEast);
                 scoreWest = getSafetyScore(pointWest);
+
+                //Set markers
+                var marker = new google.maps.Marker(
+                {
+                  position: pointNorth,
+                  title: "foo"
+                });
+                marker.setMap(me.map);
+                
 
                 // Find the closest one and then the safest one
 
@@ -714,55 +726,54 @@ header("access-control-allow-origin: *");-->
                 });
 
                 console.log(waypts);
-
-                // Snap to road maybe?
               }
-          } 
-
-
-            //me.directionsDisplay.setDirections(response);
+            } 
           } else {
             window.alert('Directions request failed due to ' + status);
           }
-        });
-
-        
-        var cur_distance = 0
-        var cur_duration = 0
-
-        console.log(waypts);
-
-        //Do processing of detour        
-        this.directionsService.route({
-          origin: {'placeId': this.originPlaceId},
-          destination: {'placeId': this.destinationPlaceId},
-          travelMode: this.travelMode,
-          waypoints: waypts,
-          optimizeWaypoints: true
-        }, function(response, status) {
-          if (status === 'OK') {
-            //Plot the safest here
-
-            for(var j=0; j<response.routes[0].legs.length; j++){
-              cur_duration += response.routes[0].legs[j].duration.value;
-              cur_distance += response.routes[0].legs[j].distance.value;
-            }
-
-            document.getElementById('distance_safest').innerHTML = "Distance: " + (Math.round(cur_distance * METERS_TO_MILES * 10) /10) + " miles";
-            document.getElementById('duration_safest').innerHTML = "Duration: " + Math.round((cur_duration/(60*60))*100)/100 + " hours";  
-
-            var directionsDisplay = new google.maps.DirectionsRenderer({
-              map: me.map,
-              directions: response,
-              routeIndex: 0,
-              polylineOptions: {
-                strokeColor: "yellow"
-              }
-            });
-            me.directionsDisplays.push(directionsDisplay);
-          }
+          calculateSafest(me, waypts);
         });
     }
+
+      function calculateSafest(mine, waypts){
+
+        var METERS_TO_MILES = 0.000621371192;
+
+        mine.directionsService.route({
+            origin: {'placeId': mine.originPlaceId},
+            destination: {'placeId': mine.destinationPlaceId},
+            travelMode: mine.travelMode,
+            waypoints: waypts,
+            optimizeWaypoints: true
+          }, function(response, status) {
+            if (status === 'OK') {
+              //Plot the safest here
+
+              console.log(waypts);
+
+              var cur_distance = 0;
+              var cur_duration = 0;
+
+              for(var j=0; j<response.routes[0].legs.length; j++){
+                cur_duration += response.routes[0].legs[j].duration.value;
+                cur_distance += response.routes[0].legs[j].distance.value;
+              }
+
+              document.getElementById('distance_safest').innerHTML = "Safest Path Distance: " + (Math.round(cur_distance * METERS_TO_MILES * 10) /10) + " miles";
+              document.getElementById('duration_safest').innerHTML = "Safest Path Duration: " + Math.round((cur_duration/(60*60))*100)/100 + " hours";  
+
+              var directionsDisplay = new google.maps.DirectionsRenderer({
+                map: mine.map,
+                directions: response,
+                routeIndex: 0,
+                polylineOptions: {
+                  strokeColor: "yellow"
+                }
+              });
+              mine.directionsDisplays.push(directionsDisplay);
+            }
+          });
+      }
 
       //calculates distance between two points in km's
       function calcDistance(p1, p2) {
