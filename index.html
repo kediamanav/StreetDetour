@@ -482,11 +482,16 @@ header("access-control-allow-origin: *");-->
               ]
             }
           ]
+<<<<<<< Updated upstream
             
         });
+=======
+           
+>>>>>>> Stashed changes
 
         map_clock = map;
 
+<<<<<<< Updated upstream
         makeServerCall(map);
         
         google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
@@ -507,6 +512,30 @@ header("access-control-allow-origin: *");-->
 
            return new google.maps.LatLng(lat2.toDeg(), lon2.toDeg());
         }
+=======
+      	var g = [
+		'rgba(0, 255, 255, 0)',
+          'rgba(0, 255, 255, 1)',
+          'rgba(0, 191, 255, 1)',
+          'rgba(0, 127, 255, 1)',
+          'rgba(0, 63, 255, 1)',
+          'rgba(0, 0, 255, 1)',
+          'rgba(0, 0, 223, 1)',
+          'rgba(0, 0, 191, 1)',
+          'rgba(0, 0, 159, 1)',
+          'rgba(0, 0, 127, 1)',
+          'rgba(63, 0, 91, 1)',
+          'rgba(127, 0, 63, 1)',
+          'rgba(191, 0, 31, 1)',
+          'rgba(255, 0, 0, 1)'
+        ]
+        
+        heatmap = new google.maps.visualization.HeatmapLayer({
+          data: getPoints(),
+          map: map, 
+	  gradient: g
+        });
+>>>>>>> Stashed changes
 
         new AutocompleteDirectionsHandler(map);
       }
@@ -895,6 +924,38 @@ header("access-control-allow-origin: *");-->
          return this * 180 / Math.PI;
       }
 
+<<<<<<< Updated upstream
+=======
+      google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
+         dist = dist / 6371;  
+         brng = brng.toRad();  
+
+         var lat1 = this.lat().toRad();
+	 var lon1 = this.lng().toRad();
+         var lat2 = Math.asin(Math.sin(lat1) * Math.cos(dist) + 
+                              Math.cos(lat1) * Math.sin(dist) * Math.cos(brng));
+
+         var lon2 = lon1 + Math.atan2(Math.sin(brng) * Math.sin(dist) *
+                                      Math.cos(lat1), 
+                                      Math.cos(dist) - Math.sin(lat1) *
+                                      Math.sin(lat2));
+
+         if (isNaN(lat2) || isNaN(lon2)) return null;
+
+         return new google.maps.LatLng(lat2.toDeg(), lon2.toDeg());
+      }
+
+
+      //Get hour of the day for getting the relevant heatmap
+      var cur_hour = new Date().getHours();
+
+      /*
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = getPoints;
+      xhr.open("GET", "https://github.com/kediamanav/StreetDetour/blob/master/data/interval_5.txt", true);
+      xhr.send();
+      */
+>>>>>>> Stashed changes
 
       // Heatmap data: 500 Points
       function getPoints(map) {
